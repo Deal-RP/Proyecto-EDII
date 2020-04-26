@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Arboles;
 
 namespace Proyecto_EDII.Models
 {
@@ -93,12 +91,12 @@ namespace Proyecto_EDII.Models
         #endregion
 
         #region PROCESO PRINCIPAL
-        public static string CifradoDecifrado(int key, string info, bool cipher)
+        public static string CifradoDecifrado(string info, bool cipher)
         {
             var aux = string.Empty;
-            if (key < 1024)
+            if (DatosArboles.Instance.key < 1024)
             {
-                CreateKey(Convert.ToString(key, 2).PadLeft(10, '0'), cipher);
+                CreateKey(Convert.ToString(DatosArboles.Instance.key, 2).PadLeft(10, '0'), cipher);
 
                 foreach (var character in info)
                 {

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\LAB_2\Arboles\Arboles.csproj" />
+    <ProjectReference Include="..\Arboles\Arboles.csproj" />
   </ItemGroup>
 
 

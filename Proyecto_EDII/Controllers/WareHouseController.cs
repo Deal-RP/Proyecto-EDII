@@ -21,18 +21,25 @@ namespace Proyecto_EDII.Controllers
         public void AddOffice([FromForm]OfficeData info)
         {
             DatosArboles.Instance.key = 15;
-            ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToOffice), new ObjectToString(OfficeData.ObjectToString));
+            ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
             for (int i = 0; i < 500; i++)
             {
-                ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = i});
+                ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = i, Name = "prueba", Price = 5.5});
             }
+        }
+
+        public List<OfficeProduct> prueba()
+        {
+            ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
+            DatosArboles.Instance.key = 15;
+            return ArbolB<OfficeProduct>.Recorrido(new OfficeProduct { IdOffice = 5, IdProduct = 5}, null, 1);
         }
 
         [HttpPost, Route("ADD2")]
         public void AddProduct([FromForm]ProductData info)
         {
             DatosArboles.Instance.key = 15;
-            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToProducto), new ObjectToString(ProductData.ObjectToString));
+            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
             for (int i = 0; i < 500; i++)
             {
                 ArbolB<ProductData>.InsertarArbol(new ProductData { ID = i});
@@ -44,11 +51,19 @@ namespace Proyecto_EDII.Controllers
         public void AddProductOffice([FromForm]OfficeProduct info)
         {
             DatosArboles.Instance.key = 15;
-            ArbolB<OfficeProduct>.IniciarArbol("ProductOffice", new StringToObject(OfficeProduct.StringToOffice), new ObjectToString(OfficeProduct.ObjectToString));
+            ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
             for (int i = 0; i < 500; i++)
             {
-                ArbolB<OfficeProduct>.InsertarArbol(new OfficeProduct { ID = i});
+                ArbolB<OfficeProduct>.InsertarArbol(new OfficeProduct { IdOffice = i, IdProduct = i, Inventory = i});
             }
+        }
+
+        [HttpPost, Route("ALTER")]
+        public void AlterOffice([FromForm]OfficeData info)
+        {
+            DatosArboles.Instance.key = 15;
+            ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
+            ArbolB<OfficeData>.Recorrido(info, null);
         }
         #endregion
     }
