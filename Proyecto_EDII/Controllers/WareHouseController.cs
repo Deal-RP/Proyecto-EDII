@@ -6,49 +6,52 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Proyecto_EDII.Models;
 using Arboles;
+using System.IO;
+using System.Net.Mime;
+using Microsoft.AspNetCore.Http;
 
 namespace Proyecto_EDII.Controllers
 {
     delegate string ObjectToString(object o);
     delegate object StringToObject(string s);
+    delegate object Modify(object o, string[] s);
 
     [ApiController]
     [Route("[controller]")]
     public class WareHouseController : ControllerBase
     {
         #region ADD METHODS
-        [HttpPost, Route("ADD1")]
-        public void AddOffice([FromForm]OfficeData info)
+        [HttpPost, Route("ADD/office")]
+        public void Add([FromForm]OfficeData info)
         {
             DatosArboles.Instance.key = 15;
             ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
             for (int i = 0; i < 500; i++)
             {
-                ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = i, Name = "prueba", Price = 5.5});
+                ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = i });
             }
         }
 
-        public List<OfficeProduct> prueba()
+        public List<ProductData> prueba()
         {
-            ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
+            ArbolB<OfficeProduct>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
             DatosArboles.Instance.key = 15;
-            return ArbolB<OfficeProduct>.Recorrido(new OfficeProduct { IdOffice = 5, IdProduct = 5}, null, 1);
+            return ArbolB<ProductData>.Recorrido(null);
         }
 
-        [HttpPost, Route("ADD2")]
-        public void AddProduct([FromForm]ProductData info)
+        [HttpPost, Route("ADD/product")]
+        public void Add([FromForm]ProductData info)
         {
             DatosArboles.Instance.key = 15;
             ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
             for (int i = 0; i < 500; i++)
             {
-                ArbolB<ProductData>.InsertarArbol(new ProductData { ID = i});
+                ArbolB<ProductData>.InsertarArbol(new ProductData { ID = i, Name = "prueba", Price = 5.5 });
             }
-            
         }
 
-        [HttpPost, Route("ADD3")]
-        public void AddProductOffice([FromForm]OfficeProduct info)
+        [HttpPost, Route("ADD/officeProduct")]
+        public void Add([FromForm]OfficeProduct info)
         {
             DatosArboles.Instance.key = 15;
             ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
@@ -57,13 +60,79 @@ namespace Proyecto_EDII.Controllers
                 ArbolB<OfficeProduct>.InsertarArbol(new OfficeProduct { IdOffice = i, IdProduct = i, Inventory = i});
             }
         }
+        #endregion
 
-        [HttpPost, Route("ALTER")]
-        public void AlterOffice([FromForm]OfficeData info)
+        #region COMPRESS METHODS
+        [HttpGet, Route("OBTAIN/{name}")]
+        public async Task<FileStreamResult> compressProduct(string name)
+        {
+            LZW.Comprimir(name);
+            return await Download($"temp\\{name}.txt");
+        }
+
+        async Task<FileStreamResult> Download(string path)
+        {
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            Directory.Delete("temp", true);
+            return File(memory, MediaTypeNames.Application.Octet, Path.GetFileName(path));
+        }
+        #endregion
+
+        #region LOAD METHODS
+        [HttpPost, Route("LOAD")]
+        public void decompressProduct([FromForm]IFormFile archivo)
+        {
+            LZW.Descomprimir(archivo);
+        }
+        #endregion
+
+        #region CHANGE KEY
+        [HttpPost, Route("ALTER/{key}")]
+        public void Alter(int key)
+        {
+            DatosArboles.Instance.key = key;
+            ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
+        }
+        #endregion
+
+        #region ALTER METHODS
+        [HttpPost, Route("ALTER/office")]
+        public void Alter([FromForm]OfficeData info)
         {
             DatosArboles.Instance.key = 15;
             ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
-            ArbolB<OfficeData>.Recorrido(info, null);
+            ArbolB<OfficeData>.Modificar(info, 
+                new string[2] { info.Name, info.Address }, 
+                new Modify(OfficeData.Alter));
+        }
+
+        [HttpPost, Route("ALTER/product1")]
+        public void Alter([FromForm]ProductData info)
+        {
+            DatosArboles.Instance.key = 15;
+            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
+            ArbolB<ProductData>.Modificar(info, new string[2] { info.Name, info.Price.ToString() }, new Modify(ProductData.Alter));
+        }
+
+        [HttpPost, Route("ALTER/product2")]
+        public void Alter([FromForm]string nombre, [FromForm]int id)
+        {
+            DatosArboles.Instance.key = 15;
+            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
+            ArbolB<ProductData>.Modificar(new ProductData { ID = id }, new string[2] { nombre, null }, new Modify(ProductData.Alter));
+        }
+
+        [HttpPost, Route("ALTER/officeProduct")]
+        public void Alter([FromForm]OfficeProduct info)
+        {
+            DatosArboles.Instance.key = 15;
+            ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
+            ArbolB<OfficeProduct>.Modificar(info, new string[2] { info.Inventory.ToString(), null}, new Modify(OfficeProduct.Alter));
         }
         #endregion
     }

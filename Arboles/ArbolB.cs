@@ -433,7 +433,7 @@ namespace Arboles
         #endregion
 
         #region BUSQUEDA
-        public static List<T> Recorrido(T info1, T info2, int tipo = 0)
+        public static List<T> Recorrido(T info1, int tipo = 0)
         {
             TemporalRecorrido = new List<T>();
             var metaData = ManejarMeta();
@@ -450,11 +450,6 @@ namespace Arboles
                         break;
                     case 1:
                         Busqueda(Raiz, info1, ref continuar);
-                        break;
-                    case 2:
-                        Busqueda(Raiz, info1, ref continuar);
-                        continuar = true;
-                        Busqueda(Raiz, info2, ref continuar);
                         break;
                 }
             }
@@ -501,6 +496,37 @@ namespace Arboles
             if (continuar && Actual.Hijos.Count != 0)
             {
                 Busqueda(Nodo<T>.StringToNodo(Actual.Hijos[pos]), info, ref continuar);
+            }
+        }
+
+        public static void Modificar(T info, string[] nuevo, Delegate mod)
+        {
+            var metaData = ManejarMeta();
+            DatosArboles.Instance.Grado = metaData[0];
+            if (metaData[1] != 0)
+            {
+                var Raiz = Nodo<T>.StringToNodo(metaData[1]);
+                var continuar = true;
+                Modificar(Raiz, info, nuevo, mod, ref continuar);
+            }
+        }
+
+        static void Modificar(Nodo<T> Actual, T info, string[] nuevo, Delegate modificar, ref bool continuar)
+        {
+            var pos = 0;
+            while (continuar && pos < Actual.Valores.Count && (Actual.Valores[pos].CompareTo(info) == -1 || Actual.Valores[pos].CompareTo(info) == 0))
+            {
+                if (Actual.Valores[pos].CompareTo(info) == 0)
+                {
+                    continuar = false;
+                    modificar.DynamicInvoke(Actual.Valores[pos], nuevo);
+                    Actual.NodoToString();
+                }
+                pos++;
+            }
+            if (continuar && Actual.Hijos.Count != 0)
+            {
+                Modificar(Nodo<T>.StringToNodo(Actual.Hijos[pos]), info, nuevo, modificar,ref continuar);
             }
         }
         #endregion

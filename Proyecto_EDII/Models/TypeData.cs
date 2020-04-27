@@ -6,57 +6,12 @@ using Arboles;
 
 namespace Proyecto_EDII.Models
 {
-    #region PRODUCT
-    public class ProductData : IComparable
-    {
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public string Address { get; set; }
-
-        public int CompareTo(object obj)
-        {
-            return this.ID.CompareTo(((ProductData)obj).ID);
-        }
-
-        public static string ObjectToString(object Nuevo)
-        {
-            var Actual = (ProductData)Nuevo;
-            Actual.Name = Actual.Name == null ? string.Empty : Actual.Name;
-            Actual.Address = Actual.Address == null ? string.Empty : Actual.Address;
-            return $"{string.Format("{0,-100}", Actual.ID.ToString())}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Name), true)}{SDES.CifradoDecifrado(string.Format("{0,-100}",Actual.Address), true)}";
-        }
-
-        public static ProductData StringToObject(string info)
-        {
-            var infoSeparada = new List<string>();
-            for (int i = 0; i < 3; i++)
-            {
-                infoSeparada.Add(info.Substring(0, 100));
-                info = info.Substring(100);
-            }
-
-            return new ProductData() { 
-                ID = Convert.ToInt32(infoSeparada[0].Trim()), 
-                Name = SDES.CifradoDecifrado(infoSeparada[1], false).Trim(), 
-                Address = SDES.CifradoDecifrado(infoSeparada[2], false).Trim()
-            };
-        }
-
-        public static ProductData Alter (ProductData originInfo , ProductData freshInfo)
-        {
-            originInfo.Name = freshInfo.Name == null ? originInfo.Name : freshInfo.Name;
-            originInfo.Address = freshInfo.Address == null ? originInfo.Address : freshInfo.Address;
-            return originInfo;
-        }
-    }
-    #endregion
-
     #region OFFICE
     public class OfficeData : IComparable
     {
         public int ID { get; set; }
         public string Name { get; set; }
-        public double Price { get; set; }
+        public string Address { get; set; }
 
         public int CompareTo(object obj)
         {
@@ -67,7 +22,8 @@ namespace Proyecto_EDII.Models
         {
             var Actual = (OfficeData)Nuevo;
             Actual.Name = Actual.Name == null ? string.Empty : Actual.Name;
-            return $"{string.Format("{0,-100}", Actual.ID.ToString())}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Name), true)}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Price.ToString()), true)}";
+            Actual.Address = Actual.Address == null ? string.Empty : Actual.Address;
+            return $"{string.Format("{0,-100}", Actual.ID.ToString())}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Name), true)}{SDES.CifradoDecifrado(string.Format("{0,-100}",Actual.Address), true)}";
         }
 
         public static OfficeData StringToObject(string info)
@@ -79,20 +35,66 @@ namespace Proyecto_EDII.Models
                 info = info.Substring(100);
             }
 
+            return new OfficeData() { 
+                ID = Convert.ToInt32(infoSeparada[0].Trim()), 
+                Name = SDES.CifradoDecifrado(infoSeparada[1], false).Trim(), 
+                Address = SDES.CifradoDecifrado(infoSeparada[2], false).Trim()
+            };
+        }
+
+        public static OfficeData Alter (object info, string[] freshInfo)
+        {
+            var originInfo = (OfficeData)info;
+            originInfo.Name = freshInfo[0] == null ? originInfo.Name : freshInfo[0];
+            originInfo.Address = freshInfo[1] == null ? originInfo.Address : freshInfo[1];
+            return originInfo;
+        }
+    }
+    #endregion
+
+    #region PRODUCT
+    public class ProductData : IComparable
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public double Price { get; set; }
+
+        public int CompareTo(object obj)
+        {
+            return this.ID.CompareTo(((ProductData)obj).ID);
+        }
+
+        public static string ObjectToString(object Nuevo)
+        {
+            var Actual = (ProductData)Nuevo;
+            Actual.Name = Actual.Name == null ? string.Empty : Actual.Name;
+            return $"{string.Format("{0,-100}", Actual.ID.ToString())}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Name), true)}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Price.ToString()), true)}";
+        }
+
+        public static ProductData StringToObject(string info)
+        {
+            var infoSeparada = new List<string>();
+            for (int i = 0; i < 3; i++)
+            {
+                infoSeparada.Add(info.Substring(0, 100));
+                info = info.Substring(100);
+            }
+
             var auxPrice = 0.00;
             double.TryParse(SDES.CifradoDecifrado(infoSeparada[2], false).Trim(), out auxPrice);
 
-            return new OfficeData() {
+            return new ProductData() {
                 ID = Convert.ToInt32(infoSeparada[0].Trim()),
                 Name = SDES.CifradoDecifrado(infoSeparada[1], false).Trim(),
                 Price = auxPrice
             };
         }
 
-        public static OfficeData Alter(OfficeData originInfo, OfficeData freshInfo)
+        public static ProductData Alter(object info, string[] freshInfo)
         {
-            originInfo.Name = freshInfo.Name == null ? originInfo.Name : freshInfo.Name;
-            originInfo.Price = freshInfo.Price == null ? originInfo.Price : freshInfo.Price;
+            var originInfo = (ProductData)info;
+            originInfo.Name = freshInfo[0] == null ? originInfo.Name : freshInfo[0];
+            originInfo.Price = freshInfo[1] == null ? originInfo.Price : Convert.ToDouble(freshInfo[1]);
             return originInfo;
         }
     }
@@ -137,9 +139,10 @@ namespace Proyecto_EDII.Models
             };
         }
 
-        public static OfficeProduct Alter(OfficeProduct originInfo, OfficeProduct freshInfo)
+        public static OfficeProduct Alter(object info, string[] freshInfo)
         {
-            originInfo.Inventory = freshInfo.Inventory == null ? originInfo.Inventory : freshInfo.Inventory;
+            var originInfo = (OfficeProduct)info;
+            originInfo.Inventory = Convert.ToInt32(freshInfo[0]);
             return originInfo;
         }
     }

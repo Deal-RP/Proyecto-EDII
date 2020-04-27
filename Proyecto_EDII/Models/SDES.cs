@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Arboles;
 
 namespace Proyecto_EDII.Models
@@ -7,6 +8,35 @@ namespace Proyecto_EDII.Models
     {
         private static string k1 = string.Empty;
         private static string k2 = string.Empty;
+
+        #region MANEJO DE KEY
+        public static void obtainKey(string name)
+        {
+            if (!File.Exists($"Datos//{name}k.txt"))
+            {
+                var nuevo = new Random().Next(0, 1023);
+                DatosArboles.Instance.key = 15;
+                var text = CifradoDecifrado(nuevo.ToString(), true);
+                DatosArboles.Instance.key = nuevo;
+                File.WriteAllText($"Datos//{name}k.txt", text);
+            }
+            else
+            {
+                DatosArboles.Instance.key = 15;
+                DatosArboles.Instance.key = Convert.ToInt32(CifradoDecifrado(File.ReadAllText($"Datos//{name}k.txt"), false));
+            }
+        }
+
+        public static void manageKey(int k)
+        {
+            if (k < 1024)
+            {
+                DatosArboles.Instance.key = k;
+                var text = CifradoDecifrado(k.ToString(), true);
+                File.WriteAllText("key.txt", text);
+            }
+        }
+        #endregion
 
         #region SUBPROCESOS
         static string Permute(string key, int type)
