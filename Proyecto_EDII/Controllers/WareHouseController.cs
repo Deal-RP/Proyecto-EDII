@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Proyecto_EDII.Models;
 using Arboles;
 using System.IO;
@@ -48,6 +45,14 @@ namespace Proyecto_EDII.Controllers
             {
                 ArbolB<ProductData>.InsertarArbol(new ProductData { ID = i, Name = "prueba", Price = 5.5 });
             }
+        }
+
+        [HttpPost, Route("ADD/productCSV")]
+        public void Add([FromForm]IFormFile info)
+        {
+            DatosArboles.Instance.key = 15;
+            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
+            ProductData.InsertCSV(info.OpenReadStream());
         }
 
         [HttpPost, Route("ADD/officeProduct")]
@@ -134,6 +139,23 @@ namespace Proyecto_EDII.Controllers
             ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
             ArbolB<OfficeProduct>.Modificar(info, new string[2] { info.Inventory.ToString(), null}, new Modify(OfficeProduct.Alter));
         }
+        #endregion
+
+        #region TRANSFER METHOD
+        public void transfer([FromForm]int idProduct, [FromForm]int idO1, [FromForm]int idO2, [FromForm]int cant)
+        {
+            ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
+            var data1 = ArbolB<OfficeProduct>.Recorrido(new OfficeProduct { IdOffice = idO1, IdProduct = idProduct }, 1);
+            var data2 = ArbolB<OfficeProduct>.Recorrido(new OfficeProduct { IdOffice = idO2, IdProduct = idProduct }, 1);
+            if (data1.Count != 0  && data1[0].Inventory - cant >= 0 && data2.Count != 0)
+            {
+                data1[0].Inventory = data1[0].Inventory - cant;
+                data2[0].Inventory = data2[0].Inventory + cant;
+            }
+            ArbolB<OfficeProduct>.Modificar(data1[0], new string[2] { data1[0].Inventory.ToString(), string.Empty }, new Modify(OfficeProduct.Alter));
+            ArbolB<OfficeProduct>.Modificar(data2[0], new string[2] { data1[0].Inventory.ToString(), string.Empty }, new Modify(OfficeProduct.Alter));
+        }
+
         #endregion
     }
 }

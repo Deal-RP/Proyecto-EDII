@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Arboles;
+using System.IO;
 
 namespace Proyecto_EDII.Models
 {
@@ -96,6 +97,19 @@ namespace Proyecto_EDII.Models
             originInfo.Name = freshInfo[0] == null ? originInfo.Name : freshInfo[0];
             originInfo.Price = freshInfo[1] == null ? originInfo.Price : Convert.ToDouble(freshInfo[1]);
             return originInfo;
+        }
+
+        public static void InsertCSV(Stream info)
+        {
+            using (var archive = new StreamReader(info))
+            {
+                var line = string.Empty;
+                while ((line = archive.ReadLine()) != null)
+                {
+                    var parts = line.Split(',');
+                    ArbolB<ProductData>.InsertarArbol(new ProductData { ID = Convert.ToInt32(parts[0]), Name = parts[1], Price = Convert.ToDouble(parts[2]) });
+                }
+            } 
         }
     }
     #endregion

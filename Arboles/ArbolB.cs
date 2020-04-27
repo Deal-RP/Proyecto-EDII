@@ -498,7 +498,9 @@ namespace Arboles
                 Busqueda(Nodo<T>.StringToNodo(Actual.Hijos[pos]), info, ref continuar);
             }
         }
+        #endregion
 
+        #region MODIFICAR DATOS
         public static void Modificar(T info, string[] nuevo, Delegate mod)
         {
             var metaData = ManejarMeta();
