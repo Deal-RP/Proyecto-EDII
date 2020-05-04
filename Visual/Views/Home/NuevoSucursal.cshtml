@@ -1,0 +1,30 @@
+﻿@model Visual.Models.Sucursal
+
+@{
+    ViewData["Title"] = "NuevoSucursal";
+}
+
+<h2>NuevoSucursal</h2>
+
+@using (Html.BeginForm("NuevoSucursal", "Home"))
+{
+    @Html.ValidationSummary();
+    <ol>
+        <p>
+            <td>ID Sucursal</td>
+            <td>@Html.TextBox("id", "")</td>
+        </p>
+        <p>
+            <td>Nombre</td>
+            <td>@Html.TextBox("nom", "")</td>
+        </p>
+        <p>
+            <td>Direccion</td>
+            <td>@Html.TextBox("dir", "")</td>
+        </p>
+    </ol>
+    <input type="submit" id="btnSubmit" value="Crear" />
+}
+<div>
+    <a asp-action="Main">Back to Main</a>
+</div>

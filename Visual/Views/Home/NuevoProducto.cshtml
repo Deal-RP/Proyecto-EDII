@@ -1,0 +1,30 @@
+﻿@model Visual.Models.Producto 
+
+@{
+    ViewData["Title"] = "NuevoProducto";
+}
+
+<h2>NuevoProducto</h2>
+
+@using (Html.BeginForm("NuevoProducto", "Home"))
+{
+    @Html.ValidationSummary();
+    <ol>
+        <p>
+            <td>ID Producto</td>
+            <td>@Html.TextBox("id", "")</td>
+        </p>
+        <p>
+            <td>Nombre</td>
+            <td>@Html.TextBox("nom", "")</td>
+        </p>
+        <p>
+            <td>Precio</td>
+            <td>@Html.TextBox("pre", "")</td>
+        </p>
+    </ol>
+    <input type="submit" id="btnSubmit" value="Crear" />
+}
+<div>
+    <a asp-action="Main">Back to Main</a>
+</div>

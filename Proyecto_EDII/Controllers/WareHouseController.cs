@@ -6,6 +6,8 @@ using Arboles;
 using System.IO;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
+using Visual.Models;
+using System;
 
 namespace Proyecto_EDII.Controllers
 {
@@ -17,55 +19,6 @@ namespace Proyecto_EDII.Controllers
     [Route("[controller]")]
     public class WareHouseController : ControllerBase
     {
-        #region ADD METHODS
-        [HttpPost, Route("ADD/office")]
-        public void Add([FromForm]OfficeData info)
-        {
-            DatosArboles.Instance.key = 15;
-            ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
-            for (int i = 0; i < 500; i++)
-            {
-                ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = i });
-            }
-        }
-
-        public List<ProductData> prueba()
-        {
-            ArbolB<OfficeProduct>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
-            DatosArboles.Instance.key = 15;
-            return ArbolB<ProductData>.Recorrido(null);
-        }
-
-        [HttpPost, Route("ADD/product")]
-        public void Add([FromForm]ProductData info)
-        {
-            DatosArboles.Instance.key = 15;
-            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
-            for (int i = 0; i < 500; i++)
-            {
-                ArbolB<ProductData>.InsertarArbol(new ProductData { ID = i, Name = "prueba", Price = 5.5 });
-            }
-        }
-
-        [HttpPost, Route("ADD/productCSV")]
-        public void Add([FromForm]IFormFile info)
-        {
-            DatosArboles.Instance.key = 15;
-            ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
-            ProductData.InsertCSV(info.OpenReadStream());
-        }
-
-        [HttpPost, Route("ADD/officeProduct")]
-        public void Add([FromForm]OfficeProduct info)
-        {
-            DatosArboles.Instance.key = 15;
-            ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
-            for (int i = 0; i < 500; i++)
-            {
-                ArbolB<OfficeProduct>.InsertarArbol(new OfficeProduct { IdOffice = i, IdProduct = i, Inventory = i});
-            }
-        }
-        #endregion
 
         #region COMPRESS METHODS
         [HttpGet, Route("OBTAIN/{name}")]
@@ -151,11 +104,13 @@ namespace Proyecto_EDII.Controllers
             {
                 data1[0].Inventory = data1[0].Inventory - cant;
                 data2[0].Inventory = data2[0].Inventory + cant;
+                ArbolB<OfficeProduct>.Modificar(data1[0], new string[2] { data1[0].Inventory.ToString(), string.Empty }, new Modify(OfficeProduct.Alter));
+                ArbolB<OfficeProduct>.Modificar(data2[0], new string[2] { data2[0].Inventory.ToString(), string.Empty }, new Modify(OfficeProduct.Alter));
             }
-            ArbolB<OfficeProduct>.Modificar(data1[0], new string[2] { data1[0].Inventory.ToString(), string.Empty }, new Modify(OfficeProduct.Alter));
-            ArbolB<OfficeProduct>.Modificar(data2[0], new string[2] { data1[0].Inventory.ToString(), string.Empty }, new Modify(OfficeProduct.Alter));
         }
 
         #endregion
+
+        
     }
 }

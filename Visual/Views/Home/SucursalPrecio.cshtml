@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Visual.Models.SucursalPrecio>
+
+@{
+    ViewData["Title"] = "SucursalPrecio";
+}
+
+<h2>SucursalPrecio</h2>
+
+<p>
+    <a asp-action="NuevoSucursalPrecio">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @*@Html.DisplayNameFor(model => model.id_s)*@
+                ID Sucursal
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.id_p)*@
+                ID Producto
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.cantidad)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.id_s)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.id_p)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.cantidad)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <a asp-action="Main">Back to Main</a>
+</div>
