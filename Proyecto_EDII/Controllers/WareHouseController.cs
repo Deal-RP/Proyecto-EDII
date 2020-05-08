@@ -75,10 +75,7 @@ namespace Proyecto_EDII.Controllers
         {
             ArbolB<OfficeData>.IniciarArbol("Office", new StringToObject(OfficeData.StringToObject), new ObjectToString(OfficeData.ObjectToString));
             SDES.obtainKey();
-            for (int i = 0; i < 500; i++)
-            {
-                ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = ArbolB<OfficeData>.newID(), Name = info.Name, Address = info.Address });
-            }
+            ArbolB<OfficeData>.InsertarArbol(new OfficeData { ID = ArbolB<OfficeData>.newID(), Name = info.Name, Address = info.Address });
         }
 
         [HttpPost, Route("ADD/product")]
@@ -86,10 +83,7 @@ namespace Proyecto_EDII.Controllers
         {
             ArbolB<ProductData>.IniciarArbol("Product", new StringToObject(ProductData.StringToObject), new ObjectToString(ProductData.ObjectToString));
             SDES.obtainKey();
-            for (int i = 0; i < 500; i++)
-            {
-                ArbolB<ProductData>.InsertarArbol(new ProductData { ID = ArbolB<ProductData>.newID(), Name = "prueba", Price = 5.5 });
-            }
+            ArbolB<ProductData>.InsertarArbol(new ProductData { ID = ArbolB<ProductData>.newID(), Name = info.Name, Price = info.Price});
         }
 
         [HttpPost, Route("ADD/productCSV")]
@@ -105,10 +99,7 @@ namespace Proyecto_EDII.Controllers
         {
             ArbolB<OfficeProduct>.IniciarArbol("OfficeProduct", new StringToObject(OfficeProduct.StringToObject), new ObjectToString(OfficeProduct.ObjectToString));
             SDES.obtainKey();
-            for (int i = 0; i < 500; i++)
-            {
-                ArbolB<OfficeProduct>.InsertarArbol(new OfficeProduct { IdOffice = i, IdProduct = i, Inventory = i });
-            }
+            ArbolB<OfficeProduct>.InsertarArbol(new OfficeProduct { IdOffice = info.IdOffice, IdProduct = info.IdProduct, Inventory = info.Inventory });
         }
         #endregion
 
