@@ -10,30 +10,39 @@ namespace Proyecto_EDII.Models
         private static string k2 = string.Empty;
 
         #region MANEJO DE KEY
-        public static void obtainKey(string name)
+        public static void obtainKey()
         {
-            if (!File.Exists($"Datos//{name}k.txt"))
+            if (!Directory.Exists("Datos"))
+            {
+                Directory.CreateDirectory("Datos");
+            }
+            if (!File.Exists("Datos//k.txt"))
             {
                 var nuevo = new Random().Next(0, 1023);
                 DatosArboles.Instance.key = 15;
                 var text = CifradoDecifrado(nuevo.ToString(), true);
                 DatosArboles.Instance.key = nuevo;
-                File.WriteAllText($"Datos//{name}k.txt", text);
+                File.WriteAllText("Datos//k.txt", text);
             }
             else
             {
                 DatosArboles.Instance.key = 15;
-                DatosArboles.Instance.key = Convert.ToInt32(CifradoDecifrado(File.ReadAllText($"Datos//{name}k.txt"), false));
+                DatosArboles.Instance.key = Convert.ToInt32(CifradoDecifrado(File.ReadAllText("Datos//k.txt"), false));
             }
         }
 
         public static void manageKey(int k)
         {
-            if (k < 1024)
+            if (!Directory.Exists("Datos"))
             {
-                DatosArboles.Instance.key = k;
+                Directory.CreateDirectory("Datos");
+            }
+            if (k < 1024 && k >= 0)
+            {
+                DatosArboles.Instance.key = 15;
                 var text = CifradoDecifrado(k.ToString(), true);
-                File.WriteAllText("key.txt", text);
+                File.WriteAllText("Datos//k.txt", text);
+                DatosArboles.Instance.key = k;
             }
         }
         #endregion

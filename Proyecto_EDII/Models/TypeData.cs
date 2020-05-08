@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Arboles;
 using System.IO;
 
@@ -24,7 +22,7 @@ namespace Proyecto_EDII.Models
             var Actual = (OfficeData)Nuevo;
             Actual.Name = Actual.Name == null ? string.Empty : Actual.Name;
             Actual.Address = Actual.Address == null ? string.Empty : Actual.Address;
-            return $"{string.Format("{0,-100}", Actual.ID.ToString())}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Name), true)}{SDES.CifradoDecifrado(string.Format("{0,-100}",Actual.Address), true)}";
+            return $"{string.Format("{0,-100}", Actual.ID.ToString())}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Name), true)}{SDES.CifradoDecifrado(string.Format("{0,-100}", Actual.Address), true)}";
         }
 
         public static OfficeData StringToObject(string info)
@@ -36,14 +34,15 @@ namespace Proyecto_EDII.Models
                 info = info.Substring(100);
             }
 
-            return new OfficeData() { 
-                ID = Convert.ToInt32(infoSeparada[0].Trim()), 
-                Name = SDES.CifradoDecifrado(infoSeparada[1], false).Trim(), 
+            return new OfficeData()
+            {
+                ID = Convert.ToInt32(infoSeparada[0].Trim()),
+                Name = SDES.CifradoDecifrado(infoSeparada[1], false).Trim(),
                 Address = SDES.CifradoDecifrado(infoSeparada[2], false).Trim()
             };
         }
 
-        public static OfficeData Alter (object info, string[] freshInfo)
+        public static OfficeData Alter(object info, string[] freshInfo)
         {
             var originInfo = (OfficeData)info;
             originInfo.Name = freshInfo[0] == null ? originInfo.Name : freshInfo[0];
@@ -84,7 +83,8 @@ namespace Proyecto_EDII.Models
             var auxPrice = 0.00;
             double.TryParse(SDES.CifradoDecifrado(infoSeparada[2], false).Trim(), out auxPrice);
 
-            return new ProductData() {
+            return new ProductData()
+            {
                 ID = Convert.ToInt32(infoSeparada[0].Trim()),
                 Name = SDES.CifradoDecifrado(infoSeparada[1], false).Trim(),
                 Price = auxPrice
@@ -106,10 +106,47 @@ namespace Proyecto_EDII.Models
                 var line = string.Empty;
                 while ((line = archive.ReadLine()) != null)
                 {
-                    var parts = line.Split(',');
-                    ArbolB<ProductData>.InsertarArbol(new ProductData { ID = Convert.ToInt32(parts[0]), Name = parts[1], Price = Convert.ToDouble(parts[2]) });
+                    var entreComillas = false;
+                    var partes = new List<string>();
+                    var aux = string.Empty;
+                    foreach (var caracter in line)
+                    {
+                        if (entreComillas)
+                        {
+                            if (caracter == '\"')
+                            {
+                                entreComillas = false;
+                            }
+                            else
+                            {
+                                aux += caracter;
+                            }
+                        }
+                        else
+                        {
+                            if (caracter == ',')
+                            {
+                                partes.Add(aux);
+                                aux = string.Empty;
+                            }
+                            else if (caracter == '\"')
+                            {
+                                entreComillas = true;
+                            }
+                            else
+                            {
+                                aux += caracter;
+                            }
+                        }
+                    }
+                    if (aux != string.Empty)
+                    {
+                        partes.Add(aux);
+                    }
+
+                    ArbolB<ProductData>.InsertarArbol(new ProductData { ID = ArbolB<ProductData>.newID(), Name = partes[0], Price = Convert.ToDouble(partes[1]) });
                 }
-            } 
+            }
         }
     }
     #endregion

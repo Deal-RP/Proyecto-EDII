@@ -8,7 +8,7 @@ namespace Arboles
     public class Nodo<T>
     {
         #region CONSTRUCTOR
-        public Nodo( int padre)
+        public Nodo(int padre)
         {
             if (padre == 0)
             {
@@ -69,7 +69,7 @@ namespace Arboles
             var buffer = new byte[cantCaracteres];
             using (var fs = new FileStream(DatosArboles.Instance.path, FileMode.OpenOrCreate))
             {
-                fs.Seek((posicion - 1) * cantCaracteres + 15, SeekOrigin.Begin);
+                fs.Seek((posicion - 1) * cantCaracteres + 23, SeekOrigin.Begin);
                 fs.Read(buffer, 0, cantCaracteres);
             }
 
@@ -142,7 +142,7 @@ namespace Arboles
             var cantCaracteres = 8 + (4 * cantHijos) + (lenght * (cantHijos - 1));
             using (var fs = new FileStream(DatosArboles.Instance.path, FileMode.OpenOrCreate))
             {
-                fs.Seek((indice - 1) * cantCaracteres + 15, SeekOrigin.Begin);
+                fs.Seek((indice - 1) * cantCaracteres + 23, SeekOrigin.Begin);
                 fs.Write(stringToBuffer(NodoChar), 0, cantCaracteres);
             }
         }

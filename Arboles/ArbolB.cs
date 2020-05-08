@@ -10,15 +10,32 @@ namespace Arboles
     {
         static List<T> TemporalRecorrido;
 
+        #region OBTENER ID
+        public static int newID()
+        {
+            var buffer = new byte[14];
+            var aux = 0;
+            using (var fs = new FileStream(DatosArboles.Instance.path, FileMode.OpenOrCreate))
+            {
+                fs.Read(buffer, 0, 8);
+                aux = Convert.ToInt32(Encoding.UTF8.GetString(buffer)) + 1;
+                fs.Position = 0;
+                fs.Write(Encoding.UTF8.GetBytes(aux.ToString("00000000;-00000000").ToCharArray()), 0, 8);
+            }
+            return aux;
+        }
+        #endregion
+
         #region MANEJO METADATA
         static int[] ManejarMeta(int[] meta = null)
         {
-            var buffer = new byte[14];
+            var buffer = new byte[15];
             using (var fs = new FileStream(DatosArboles.Instance.path, FileMode.OpenOrCreate))
             {
                 if (meta == null)
                 {
-                    fs.Read(buffer, 0, 14);
+                    fs.Seek(8, SeekOrigin.Begin);
+                    fs.Read(buffer, 0, 15);
                     var values = Encoding.UTF8.GetString(buffer).Split('|');
 
                     return new int[3] { Convert.ToInt32(values[0]), Convert.ToInt32(values[1]), Convert.ToInt32(values[2]) };
@@ -29,6 +46,7 @@ namespace Arboles
                 {
                     linea = $"{linea}{item.ToString("0000;-0000")}|";
                 }
+                fs.Seek(8, SeekOrigin.Begin);
                 fs.Write(Encoding.UTF8.GetBytes(linea.ToCharArray()), 0, 15);
             }
             return null;
@@ -47,7 +65,7 @@ namespace Arboles
             }
             if (!File.Exists(DatosArboles.Instance.path))
             {
-                string text = $"{grado.ToString("0000;-0000")}|0000|0001|";
+                string text = $"00000000{grado.ToString("0000;-0000")}|0000|0001|";
                 File.WriteAllText(DatosArboles.Instance.path, text);
             }
             DatosArboles.Instance.ObtenerNodo = ONodo;
@@ -470,7 +488,7 @@ namespace Arboles
             {
                 var posDato = 1;
                 foreach (var hijo in Actual.Hijos)
-                { 
+                {
                     InOrden(Nodo<T>.StringToNodo(hijo));
                     if (posDato < Actual.Hijos.Count)
                     {
@@ -528,7 +546,60 @@ namespace Arboles
             }
             if (continuar && Actual.Hijos.Count != 0)
             {
-                Modificar(Nodo<T>.StringToNodo(Actual.Hijos[pos]), info, nuevo, modificar,ref continuar);
+                Modificar(Nodo<T>.StringToNodo(Actual.Hijos[pos]), info, nuevo, modificar, ref continuar);
+            }
+        }
+        #endregion
+
+        #region MODIFICAR KEY
+
+        public static void ModificarArbol(int newKey)
+        {
+            var metaData = ManejarMeta();
+            DatosArboles.Instance.Grado = metaData[0];
+            if (metaData[1] != 0)
+            {
+                var Raiz = Nodo<T>.StringToNodo(metaData[1]);
+                RecorridoModificacion(Raiz, newKey);
+            }
+        }
+
+
+        static void RecorridoModificacion(Nodo<T> Actual, int newKey)
+        {
+            if (Actual.Hijos.Count == 0)
+            {
+                var aux = new Nodo<T>(Actual.Padre);
+                aux.indice = Actual.indice;
+                aux.Hijos = Actual.Hijos;
+                foreach (var dato in Actual.Valores)
+                {
+                    aux.Valores.Add(dato);
+                }
+                var last = DatosArboles.Instance.key;
+                DatosArboles.Instance.key = newKey;
+                aux.NodoToString();
+                DatosArboles.Instance.key = last;
+            }
+            else
+            {
+                var posDato = 1;
+                var aux = new Nodo<T>(Actual.Padre);
+                aux.indice = Actual.indice;
+                aux.Hijos = Actual.Hijos;
+                foreach (var hijo in Actual.Hijos)
+                {
+                    RecorridoModificacion(Nodo<T>.StringToNodo(hijo), newKey);
+                    if (posDato < Actual.Hijos.Count)
+                    {
+                        aux.Valores.Add(Actual.Valores[posDato - 1]);
+                        posDato++;
+                    }
+                }
+                var last = DatosArboles.Instance.key;
+                DatosArboles.Instance.key = newKey;
+                aux.NodoToString();
+                DatosArboles.Instance.key = last;
             }
         }
         #endregion
